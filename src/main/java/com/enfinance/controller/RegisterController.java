@@ -4,6 +4,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,38 +26,37 @@ public class RegisterController {
 		return new ModelAndView("register");
 	}
 	
-    @GetMapping("/confirmation")
-    public ModelAndView showConfirmation(@ModelAttribute("user") User user) {
-        ModelAndView modelAndView = new ModelAndView("confirmation");
-        modelAndView.addObject("user", user);
-        
-        // Add additional user details if needed
-        modelAndView.addObject("fullName", user.getFname() + " " + user.getLname());
-        modelAndView.addObject("email", user.getEmail());
-        modelAndView.addObject("contactNumber", user.getContactNumber());
-        modelAndView.addObject("roles", user.getRoles());
-        
-        return modelAndView;
-    }
-	
 	@PostMapping("/register")
-	public ModelAndView registerUser(@RequestParam String fname, 
-									@RequestParam String lname, 
-									@RequestParam String email, 
-									@RequestParam String contactNumber, 
-									@RequestParam String password, HttpSession session,
-						            RedirectAttributes redirectAttributes) {
-		
-	    if (userService.emailExists(email)) {
-	        ModelAndView mav = new ModelAndView("register");
-	        mav.addObject("error", "Email already exists, Try Again!");
-	        return mav;
-	    }	   
+    public String registerUser(@RequestParam String fname,
+            @RequestParam String lname,
+            @RequestParam String email,
+            @RequestParam String contactNumber,
+            @RequestParam String password,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        if (userService.emailExists(email)) {
+            redirectAttributes.addFlashAttribute("error", "Email already exists, Try Again!");
+            return "redirect:/register";
+        }
+
+        User newUser = userService.registerNewClient(fname, lname, email, contactNumber, password);
+        
+        // Store user details in redirect attributes
+        redirectAttributes.addFlashAttribute("user", newUser);
+        
+        return "redirect:/confirmation";
+    }
+
+	@GetMapping("/confirmation")
+	public String showConfirmation(@ModelAttribute("user") User user, Model model) {
+	    if (user == null || user.getEmail() == null) {
+	        return "redirect:/register";
+	    }
 	    
-	    userService.registerNewClient(fname, lname, email, contactNumber, password);
-	    ModelAndView mav = new ModelAndView();
-	    mav.setViewName("redirect:/confirmation");
-	    return mav;
+	    model.addAttribute("user", user);
+	    model.addAttribute("userRole", user.getRoleNames());
+	    return "confirmation";
 	}
 
 }
