@@ -153,5 +153,11 @@ public class User {
     public String getUserName() {
 		return email;
 	}
+
+	public String getRoleNames() {
+        return roles.stream()
+                .map(role -> role.getRoleName())
+                .collect(Collectors.joining(", "));
+    }
 	
 }
