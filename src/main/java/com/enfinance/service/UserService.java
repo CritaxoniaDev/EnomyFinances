@@ -8,7 +8,7 @@ import com.enfinance.entity.User;
 @Service
 public interface UserService {
 
-	void registerNewClient(String fname, String lname, String email, String contactNumber, String password);
+	User registerNewClient(String fname, String lname, String email, String contactNumber, String password);
 
 	boolean emailExists(String email);
 
