@@ -68,7 +68,7 @@
                                 <span class="w-1/3 text-gray-600">Account Type:</span>
                                 <span class="w-2/3">
                                     <span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
-                                        ${user.roles}
+                                         ${userRole}
                                     </span>
                                 </span>
                             </div>
